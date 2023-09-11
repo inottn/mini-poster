@@ -45,11 +45,11 @@ export class MiniPoster {
     canvas.width = width * pixelRatio;
     canvas.height = height * pixelRatio;
 
-    this.context.save();
+    context.save();
 
     if (borderRadius) {
       this.drawRoundRect(0, 0, canvas.width, canvas.height, borderRadius);
-      this.context.clip();
+      context.clip();
     }
 
     if (backgroundColor) {
@@ -58,7 +58,7 @@ export class MiniPoster {
     }
 
     if (overflow !== 'hidden') {
-      this.context.restore();
+      context.restore();
     }
 
     if (isNonEmptyArray(children)) {
@@ -71,15 +71,23 @@ export class MiniPoster {
     }
 
     if (overflow === 'hidden') {
-      this.context.restore();
+      context.restore();
     }
   }
 
   async renderImage(data: ImageConfig) {
     const { context } = this;
-    const { left, top, width, height, src, backgroundColor } = data;
+    const { left, top, width, height, src, backgroundColor, borderRadius } =
+      data;
     const [img, loadPromise] = this.images.get(src);
     await loadPromise;
+
+    context.save();
+
+    if (borderRadius) {
+      this.drawRoundRect(left, top, width, height, borderRadius);
+      context.clip();
+    }
 
     if (backgroundColor) {
       context.fillStyle = backgroundColor;
@@ -87,6 +95,7 @@ export class MiniPoster {
     }
 
     context.drawImage(img, left, top, width, height);
+    context.restore();
   }
 
   async renderText(data: TextConfig) {

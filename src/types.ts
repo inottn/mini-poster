@@ -57,4 +57,5 @@ export type ImageConfig = PositionConfig & {
   type: 'image';
   src: string;
   backgroundColor?: string;
+  borderRadius?: Radius;
 };
