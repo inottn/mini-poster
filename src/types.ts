@@ -49,6 +49,7 @@ export type TextConfig = PositionConfig & {
   lineClamp?: number;
   fontSrc?: string;
   fontFamily?: string;
+  fontWeight?: number | string;
   textDecoration?: 'none' | 'line-through';
   whiteSpace?: 'normal' | 'nowrap';
 };

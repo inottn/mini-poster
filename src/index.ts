@@ -105,6 +105,7 @@ export class MiniPoster {
       top,
       color = '#333',
       fontFamily,
+      fontWeight = 400,
       fontSize = 16,
       lineHeight = fontSize * 1.43,
       fontSrc,
@@ -117,7 +118,7 @@ export class MiniPoster {
 
     context.textBaseline = 'top';
     context.fillStyle = color;
-    context.font = `${fontSize}px ${fontFamily}`;
+    context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
 
     const lines = this.getAllLines(data);
 
