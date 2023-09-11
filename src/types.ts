@@ -19,9 +19,17 @@ export type ExportOptions = {
   quality?: number;
 };
 
+export type Radius =
+  | number
+  | [number]
+  | [number, number]
+  | [number, number, number]
+  | [number, number, number, number];
+
 export type Config = {
   backgroundColor?: string;
-  borderRadius?: number | number[];
+  borderRadius?: Radius;
+  overflow?: 'visible' | 'hidden';
   children?: (TextConfig | ImageConfig)[];
 };
 

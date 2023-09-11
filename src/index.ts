@@ -6,6 +6,7 @@ import type {
   ExportOptions,
   ImageConfig,
   Options,
+  Radius,
   TextConfig,
 } from './types';
 
@@ -26,8 +27,15 @@ export class MiniPoster {
   }
 
   async render(config: Config) {
-    const { canvas, options } = this;
-    const { width, height, pixelRatio = 1 } = { ...options, ...config };
+    const { canvas, context, options } = this;
+    const {
+      width,
+      height,
+      pixelRatio = 1,
+      backgroundColor,
+      borderRadius,
+      overflow,
+    } = { ...options, ...config };
     const { children } = config;
 
     if (!width || !height) {
@@ -37,6 +45,22 @@ export class MiniPoster {
     canvas.width = width * pixelRatio;
     canvas.height = height * pixelRatio;
 
+    this.context.save();
+
+    if (borderRadius) {
+      this.drawRoundRect(0, 0, canvas.width, canvas.height, borderRadius);
+      this.context.clip();
+    }
+
+    if (backgroundColor) {
+      context.fillStyle = backgroundColor;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    if (overflow !== 'hidden') {
+      this.context.restore();
+    }
+
     if (isNonEmptyArray(children)) {
       this.loadAssets(children);
 
@@ -45,17 +69,23 @@ export class MiniPoster {
         if (item.type === 'text') await this.renderText(item);
       }
     }
+
+    if (overflow === 'hidden') {
+      this.context.restore();
+    }
   }
 
   async renderImage(data: ImageConfig) {
     const { context } = this;
-    const { width, height, left = 0, top, src, backgroundColor } = data;
-    const [img, load] = this.images.get(src);
-    await load;
+    const { left, top, width, height, src, backgroundColor } = data;
+    const [img, loadPromise] = this.images.get(src);
+    await loadPromise;
+
     if (backgroundColor) {
       context.fillStyle = backgroundColor;
       context.fillRect(left, top, width, height);
     }
+
     context.drawImage(img, left, top, width, height);
   }
 
@@ -73,8 +103,7 @@ export class MiniPoster {
     } = data;
 
     if (fontSrc) {
-      const load = this.fonts.get(fontSrc);
-      await load;
+      await this.fonts.get(fontSrc);
     }
 
     context.textBaseline = 'top';
@@ -98,6 +127,44 @@ export class MiniPoster {
     });
   }
 
+  drawRoundRect(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: Radius,
+  ) {
+    const { context } = this;
+
+    // convert to [top-left, top-right, bottom-right, bottom-left]
+    if (typeof radius === 'number') {
+      radius = [radius, radius, radius, radius];
+    } else if (radius.length === 1) {
+      radius = [radius[0], radius[0], radius[0], radius[0]];
+    } else if (radius.length === 2) {
+      radius = [radius[0], radius[1], radius[0], radius[1]];
+    } else if (radius.length === 3) {
+      radius = [radius[0], radius[1], radius[2], radius[1]];
+    }
+
+    context.beginPath();
+    context.moveTo(x + radius[0], y);
+    context.lineTo(x + width - radius[1], y);
+    context.quadraticCurveTo(x + width, y, x + width, y + radius[1]);
+    context.lineTo(x + width, y + height - radius[2]);
+    context.quadraticCurveTo(
+      x + width,
+      y + height,
+      x + width - radius[2],
+      y + height,
+    );
+    context.lineTo(x + radius[3], y + height);
+    context.quadraticCurveTo(x, y + height, x, y + height - radius[3]);
+    context.lineTo(x, y + radius[0]);
+    context.quadraticCurveTo(x, y, x + radius[0], y);
+    context.closePath();
+  }
+
   getAllLines(data: TextConfig) {
     const { context } = this;
     const { content, width, lineClamp = Infinity } = data;
@@ -106,15 +173,18 @@ export class MiniPoster {
 
     while (index < content.length && lines.length < lineClamp) {
       const prevIndex = index;
+
       index =
         binarySearch(
           content,
           (end) =>
             context.measureText(content.slice(index, end + 1)).width > width,
         ) + 1;
+
       if (index === prevIndex) {
         index = prevIndex + 1;
       }
+
       if (lineClamp === lines.length + 1) {
         lines.push(content.slice(prevIndex, index - 1) + '...');
       } else {
