@@ -89,14 +89,14 @@ export class MiniPoster {
 
   async renderImage(data: ImageConfig) {
     const { context } = this;
-    const [left, top, width, height] = this.toPx([
+    const { src, backgroundColor, borderRadius, objectFit = 'fill' } = data;
+    const [img, loadPromise] = this.images.get(src);
+    let [left, top, width, height] = this.toPx([
       data.left,
       data.top,
       data.width,
       data.height,
     ]);
-    const { src, backgroundColor, borderRadius } = data;
-    const [img, loadPromise] = this.images.get(src);
     await loadPromise;
 
     context.save();
@@ -109,6 +109,29 @@ export class MiniPoster {
     if (backgroundColor) {
       context.fillStyle = backgroundColor;
       context.fillRect(left, top, width, height);
+    }
+
+    const imageAspect = img.width / img.height;
+    const areaAspect = width / height;
+
+    if (objectFit === 'fill' || imageAspect === areaAspect) {
+      // Do nothing
+    } else if (objectFit === 'contain' || objectFit === 'cover') {
+      if (
+        objectFit === 'contain'
+          ? imageAspect > areaAspect
+          : imageAspect < areaAspect
+      ) {
+        const ratio = img.width / width;
+        const areaHeight = height;
+        height = img.height / ratio;
+        top += (areaHeight - height) * 0.5;
+      } else {
+        const ratio = img.height / height;
+        const areaWidth = width;
+        width = img.width / ratio;
+        left += (areaWidth - width) * 0.5;
+      }
     }
 
     context.drawImage(img, left, top, width, height);
@@ -137,6 +160,7 @@ export class MiniPoster {
       await this.fonts.get(fontSrc);
     }
 
+    context.save();
     context.textBaseline = 'top';
     context.fillStyle = color;
     context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
@@ -156,6 +180,7 @@ export class MiniPoster {
         );
       }
     });
+    context.restore();
   }
 
   getAllLines(data: TextConfig) {

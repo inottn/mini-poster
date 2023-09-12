@@ -59,4 +59,5 @@ export type ImageConfig = PositionConfig & {
   src: string;
   backgroundColor?: string;
   borderRadius?: Radius;
+  objectFit?: 'fill' | 'contain' | 'cover';
 };
