@@ -12,6 +12,8 @@ import type {
 
 declare const my: any;
 
+type Number = number | Number[];
+
 export class MiniPoster {
   canvas: Canvas;
   context: CanvasRenderingContext2D;
@@ -24,6 +26,16 @@ export class MiniPoster {
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
     this.options = options;
+  }
+
+  private toPx<T extends Number>(value: T): T {
+    const { pixelRatio = 1 } = this.options;
+
+    return <T>(
+      (typeof value === 'number'
+        ? value * pixelRatio
+        : value.map(this.toPx.bind(this)))
+    );
   }
 
   async render(config: Config) {
@@ -77,15 +89,20 @@ export class MiniPoster {
 
   async renderImage(data: ImageConfig) {
     const { context } = this;
-    const { left, top, width, height, src, backgroundColor, borderRadius } =
-      data;
+    const [left, top, width, height] = this.toPx([
+      data.left,
+      data.top,
+      data.width,
+      data.height,
+    ]);
+    const { src, backgroundColor, borderRadius } = data;
     const [img, loadPromise] = this.images.get(src);
     await loadPromise;
 
     context.save();
 
     if (borderRadius) {
-      this.drawRoundRect(left, top, width, height, borderRadius);
+      this.drawRoundRect(left, top, width, height, this.toPx(borderRadius));
       context.clip();
     }
 
@@ -100,14 +117,18 @@ export class MiniPoster {
 
   async renderText(data: TextConfig) {
     const { context } = this;
+    const [left, top, fontSize] = this.toPx([
+      data.left,
+      data.top,
+      data.fontSize || 16,
+    ]);
+    const lineHeight = data.lineHeight
+      ? this.toPx(data.lineHeight)
+      : fontSize * 1.43;
     const {
-      left,
-      top,
       color = '#333',
       fontFamily,
       fontWeight = 400,
-      fontSize = 16,
-      lineHeight = fontSize * 1.43,
       fontSrc,
       textDecoration,
     } = data;
@@ -120,7 +141,7 @@ export class MiniPoster {
     context.fillStyle = color;
     context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
 
-    const lines = this.getAllLines(data);
+    const lines = data.width ? this.getAllLines(data) : [data.content];
 
     lines.forEach((text, index) => {
       const topOffset = top + (lineHeight - fontSize) / 2 + lineHeight * index;
@@ -135,6 +156,37 @@ export class MiniPoster {
         );
       }
     });
+  }
+
+  getAllLines(data: TextConfig) {
+    const { context } = this;
+    const width = this.toPx(data.width);
+    const { content, lineClamp = Infinity } = data;
+    const lines = [];
+    let index = 0;
+
+    while (index < content.length && lines.length < lineClamp) {
+      const prevIndex = index;
+
+      index =
+        binarySearch(
+          content,
+          (end) =>
+            context.measureText(content.slice(index, end + 1)).width > width,
+        ) + 1;
+
+      if (index === prevIndex) {
+        index = prevIndex + 1;
+      }
+
+      if (lineClamp === lines.length + 1) {
+        lines.push(content.slice(prevIndex, index - 1) + '...');
+      } else {
+        lines.push(content.slice(prevIndex, index));
+      }
+    }
+
+    return lines;
   }
 
   drawRoundRect(
@@ -173,36 +225,6 @@ export class MiniPoster {
     context.lineTo(x, y + radius[0]);
     context.quadraticCurveTo(x, y, x + radius[0], y);
     context.closePath();
-  }
-
-  getAllLines(data: TextConfig) {
-    const { context } = this;
-    const { content, width, lineClamp = Infinity } = data;
-    const lines = [];
-    let index = 0;
-
-    while (index < content.length && lines.length < lineClamp) {
-      const prevIndex = index;
-
-      index =
-        binarySearch(
-          content,
-          (end) =>
-            context.measureText(content.slice(index, end + 1)).width > width,
-        ) + 1;
-
-      if (index === prevIndex) {
-        index = prevIndex + 1;
-      }
-
-      if (lineClamp === lines.length + 1) {
-        lines.push(content.slice(prevIndex, index - 1) + '...');
-      } else {
-        lines.push(content.slice(prevIndex, index));
-      }
-    }
-
-    return lines;
   }
 
   loadAssets(data: NonNullable<Config['children']>) {
