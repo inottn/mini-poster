@@ -13,8 +13,12 @@ export type Options = {
 };
 
 export type ExportOptions = {
+  x?: number;
+  y?: number;
   width?: number;
   height?: number;
+  destWidth?: number;
+  destHeight?: number;
   fileType?: 'jpg' | 'png';
   quality?: number;
 };

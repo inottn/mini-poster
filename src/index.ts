@@ -322,8 +322,7 @@ export class MiniPoster {
       y: 0,
       width,
       height,
-      destWidth: options.width,
-      destHeight: options.height,
+      ...options,
       success: resolve,
       fail: reject,
     });
