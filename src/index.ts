@@ -149,7 +149,7 @@ export class MiniPoster {
     const [left, top, fontSize] = this.toPx([
       data.left,
       data.top,
-      data.fontSize || 16,
+      data.fontSize || 14,
     ]);
     const lineHeight = data.lineHeight
       ? this.toPx(data.lineHeight)
