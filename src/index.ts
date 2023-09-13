@@ -60,7 +60,13 @@ export class MiniPoster {
     context.save();
 
     if (borderRadius) {
-      this.drawRoundRect(0, 0, canvas.width, canvas.height, borderRadius);
+      this.drawRoundedRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+        this.toPx(borderRadius),
+      );
       context.clip();
     }
 
@@ -102,7 +108,7 @@ export class MiniPoster {
     context.save();
 
     if (borderRadius) {
-      this.drawRoundRect(left, top, width, height, this.toPx(borderRadius));
+      this.drawRoundedRect(left, top, width, height, this.toPx(borderRadius));
       context.clip();
     }
 
@@ -226,7 +232,7 @@ export class MiniPoster {
     return lines;
   }
 
-  drawRoundRect(
+  drawRoundedRect(
     x: number,
     y: number,
     width: number,
@@ -246,22 +252,24 @@ export class MiniPoster {
       radius = [radius[0], radius[1], radius[2], radius[1]];
     }
 
-    context.beginPath();
-    context.moveTo(x + radius[0], y);
-    context.lineTo(x + width - radius[1], y);
-    context.quadraticCurveTo(x + width, y, x + width, y + radius[1]);
-    context.lineTo(x + width, y + height - radius[2]);
-    context.quadraticCurveTo(
-      x + width,
-      y + height,
-      x + width - radius[2],
-      y + height,
+    const [tl, tr, br, bl] = radius.map((r) =>
+      Math.min(r, width / 2, height / 2),
     );
-    context.lineTo(x + radius[3], y + height);
-    context.quadraticCurveTo(x, y + height, x, y + height - radius[3]);
-    context.lineTo(x, y + radius[0]);
-    context.quadraticCurveTo(x, y, x + radius[0], y);
+
+    context.save();
+    context.translate(x, y);
+    context.beginPath();
+    context.moveTo(tl, 0);
+    context.lineTo(width - tr, 0);
+    context.arc(width - tr, tr, tr, (Math.PI * 3) / 2, 0, false);
+    context.lineTo(width, height - br);
+    context.arc(width - br, height - br, br, 0, Math.PI / 2, false);
+    context.lineTo(bl, height);
+    context.arc(bl, height - bl, bl, Math.PI / 2, Math.PI, false);
+    context.lineTo(0, tl);
+    context.arc(tl, tl, tl, Math.PI, (Math.PI * 3) / 2, false);
     context.closePath();
+    context.restore();
   }
 
   loadAssets(data: NonNullable<Config['children']>) {
