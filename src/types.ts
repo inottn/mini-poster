@@ -40,18 +40,24 @@ type PositionConfig = {
   height: number;
 };
 
+export type TextAlign = 'left' | 'center' | 'right';
+
+export type TextDecoration = 'none' | 'line-through';
+
+export type ObjectFit = 'fill' | 'contain' | 'cover';
+
 export type TextConfig = PositionConfig & {
   type: 'text';
   content: string;
-  fontSize?: number;
-  lineHeight?: number;
   color?: string;
+  fontSize?: number;
   lineClamp?: number;
-  fontSrc?: string;
+  lineHeight?: number;
   fontFamily?: string;
+  fontSrc?: string;
   fontWeight?: number | string;
-  textDecoration?: 'none' | 'line-through';
-  whiteSpace?: 'normal' | 'nowrap';
+  textAlign?: TextAlign;
+  textDecoration?: TextDecoration;
 };
 
 export type ImageConfig = PositionConfig & {
@@ -59,5 +65,5 @@ export type ImageConfig = PositionConfig & {
   src: string;
   backgroundColor?: string;
   borderRadius?: Radius;
-  objectFit?: 'fill' | 'contain' | 'cover';
+  objectFit?: ObjectFit;
 };

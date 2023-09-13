@@ -1,3 +1,5 @@
+import { TextAlign } from './types';
+
 type BinarySearchValidate = (index: number) => boolean;
 
 export const binarySearch = function (
@@ -18,4 +20,24 @@ export const binarySearch = function (
   }
 
   return right - 1;
+};
+
+export const calculateLeftOffset = function ({
+  left,
+  textAlign,
+  textWidth,
+  width,
+}: {
+  left: number;
+  textAlign: TextAlign;
+  textWidth?: number;
+  width: number;
+}) {
+  if (textAlign === 'center') {
+    return left + (width - (textWidth || 0)) / 2;
+  } else if (textAlign === 'right') {
+    return left + width - (textWidth || 0);
+  } else {
+    return left;
+  }
 };

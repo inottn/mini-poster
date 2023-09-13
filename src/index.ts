@@ -1,5 +1,5 @@
 import { isNonEmptyArray, withResolvers } from '@inottn/fp-utils';
-import { binarySearch } from './utils';
+import { binarySearch, calculateLeftOffset } from './utils';
 import type {
   Canvas,
   Config,
@@ -140,9 +140,10 @@ export class MiniPoster {
 
   async renderText(data: TextConfig) {
     const { context } = this;
-    const [left, top, fontSize] = this.toPx([
+    const [left, top, width, fontSize] = this.toPx([
       data.left,
       data.top,
+      data.width,
       data.fontSize || 16,
     ]);
     const lineHeight = data.lineHeight
@@ -153,14 +154,17 @@ export class MiniPoster {
       fontFamily,
       fontWeight = 400,
       fontSrc,
+      textAlign = 'left',
       textDecoration,
     } = data;
+    const leftOffset = calculateLeftOffset({ left, textAlign, width });
 
     if (fontSrc) {
       await this.fonts.get(fontSrc);
     }
 
     context.save();
+    context.textAlign = textAlign;
     context.textBaseline = 'top';
     context.fillStyle = color;
     context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
@@ -169,13 +173,20 @@ export class MiniPoster {
 
     lines.forEach((text, index) => {
       const topOffset = top + (lineHeight - fontSize) / 2 + lineHeight * index;
-      context.fillText(text, left, topOffset);
+      context.fillText(text, leftOffset, topOffset);
       if (textDecoration === 'line-through') {
-        const { width } = context.measureText(text);
-        context.fillRect(
+        const { width: textWidth } = context.measureText(text);
+        const textLeft = calculateLeftOffset({
           left,
-          topOffset + fontSize * 0.46,
+          textAlign,
+          textWidth,
           width,
+        });
+
+        context.fillRect(
+          textLeft,
+          topOffset + fontSize * 0.46,
+          textWidth,
           fontSize / 14,
         );
       }
