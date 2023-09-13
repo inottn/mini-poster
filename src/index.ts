@@ -140,10 +140,9 @@ export class MiniPoster {
 
   async renderText(data: TextConfig) {
     const { context } = this;
-    const [left, top, width, fontSize] = this.toPx([
+    const [left, top, fontSize] = this.toPx([
       data.left,
       data.top,
-      data.width,
       data.fontSize || 16,
     ]);
     const lineHeight = data.lineHeight
@@ -157,23 +156,25 @@ export class MiniPoster {
       textAlign = 'left',
       textDecoration,
     } = data;
-    const leftOffset = calculateLeftOffset({ left, textAlign, width });
 
     if (fontSrc) {
       await this.fonts.get(fontSrc);
     }
 
     context.save();
-    context.textAlign = textAlign;
+    if (data.width) context.textAlign = textAlign;
     context.textBaseline = 'top';
     context.fillStyle = color;
     context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
 
+    const width = data.width ? this.toPx(data.width) : undefined;
+    const leftOffset = calculateLeftOffset({ left, textAlign, width });
     const lines = data.width ? this.getAllLines(data) : [data.content];
 
     lines.forEach((text, index) => {
       const topOffset = top + (lineHeight - fontSize) / 2 + lineHeight * index;
       context.fillText(text, leftOffset, topOffset);
+
       if (textDecoration === 'line-through') {
         const { width: textWidth } = context.measureText(text);
         const textLeft = calculateLeftOffset({
@@ -196,7 +197,7 @@ export class MiniPoster {
 
   getAllLines(data: TextConfig) {
     const { context } = this;
-    const width = this.toPx(data.width);
+    const width = this.toPx(data.width!);
     const { content, lineClamp = Infinity } = data;
     const lines = [];
     let index = 0;

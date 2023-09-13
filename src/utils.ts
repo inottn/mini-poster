@@ -1,3 +1,4 @@
+import { isUndefined } from '@inottn/fp-utils';
 import { TextAlign } from './types';
 
 type BinarySearchValidate = (index: number) => boolean;
@@ -31,13 +32,18 @@ export const calculateLeftOffset = function ({
   left: number;
   textAlign: TextAlign;
   textWidth?: number;
-  width: number;
+  width?: number;
 }) {
-  if (textAlign === 'center') {
-    return left + (width - (textWidth || 0)) / 2;
-  } else if (textAlign === 'right') {
-    return left + width - (textWidth || 0);
-  } else {
-    return left;
+  if (isUndefined(width)) return left;
+
+  const offset = width - (textWidth || 0);
+
+  switch (textAlign) {
+    case 'center':
+      return left + offset / 2;
+    case 'right':
+      return left + offset;
+    default:
+      return left;
   }
 };

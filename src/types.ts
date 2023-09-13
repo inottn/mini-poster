@@ -46,7 +46,9 @@ export type TextDecoration = 'none' | 'line-through';
 
 export type ObjectFit = 'fill' | 'contain' | 'cover';
 
-export type TextConfig = PositionConfig & {
+export type TextConfig = Omit<PositionConfig, 'width' | 'height'> & {
+  width?: number;
+} & {
   type: 'text';
   content: string;
   color?: string;
