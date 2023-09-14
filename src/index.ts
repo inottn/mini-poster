@@ -322,14 +322,13 @@ export class MiniPoster {
 
   export(options: ExportOptions) {
     const { canvas } = this;
-    const { width, height } = this.options;
     const { promise, resolve, reject } = withResolvers();
 
     canvas.toTempFilePath({
       x: 0,
       y: 0,
-      width,
-      height,
+      width: canvas.width,
+      height: canvas.height,
       ...options,
       success: resolve,
       fail: reject,
