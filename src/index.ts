@@ -12,8 +12,6 @@ import type {
 
 declare const my: any;
 
-type Number = number | Number[];
-
 export class MiniPoster {
   canvas: Canvas;
   context: CanvasRenderingContext2D;
@@ -26,16 +24,6 @@ export class MiniPoster {
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
     this.options = options;
-  }
-
-  private toPx<T extends Number>(value: T): T {
-    const { pixelRatio = 1 } = this.options;
-
-    return <T>(
-      (typeof value === 'number'
-        ? value * pixelRatio
-        : value.map(this.toPx.bind(this)))
-    );
   }
 
   async render(config: Config) {
@@ -56,17 +44,11 @@ export class MiniPoster {
 
     canvas.width = width * pixelRatio;
     canvas.height = height * pixelRatio;
-
+    context.scale(pixelRatio, pixelRatio);
     context.save();
 
     if (borderRadius) {
-      this.drawRoundedRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height,
-        this.toPx(borderRadius),
-      );
+      this.drawRoundedRect(0, 0, canvas.width, canvas.height, borderRadius);
       context.clip();
     }
 
@@ -97,18 +79,13 @@ export class MiniPoster {
     const { context } = this;
     const { src, backgroundColor, borderRadius, objectFit = 'fill' } = data;
     const [img, loadPromise] = this.images.get(src);
-    let [left, top, width, height] = this.toPx([
-      data.left,
-      data.top,
-      data.width,
-      data.height,
-    ]);
+    let { left, top, width, height } = data;
     await loadPromise;
 
     context.save();
 
     if (borderRadius) {
-      this.drawRoundedRect(left, top, width, height, this.toPx(borderRadius));
+      this.drawRoundedRect(left, top, width, height, borderRadius);
       context.clip();
     }
 
@@ -146,15 +123,12 @@ export class MiniPoster {
 
   async renderText(data: TextConfig) {
     const { context } = this;
-    const [left, top, fontSize] = this.toPx([
-      data.left,
-      data.top,
-      data.fontSize || 14,
-    ]);
-    const lineHeight = data.lineHeight
-      ? this.toPx(data.lineHeight)
-      : fontSize * 1.43;
     const {
+      left,
+      top,
+      width,
+      fontSize = 14,
+      lineHeight = fontSize * 1.43,
       color = '#333',
       fontFamily,
       fontWeight = 400,
@@ -168,14 +142,13 @@ export class MiniPoster {
     }
 
     context.save();
-    if (data.width) context.textAlign = textAlign;
+    if (width) context.textAlign = textAlign;
     context.textBaseline = 'top';
     context.fillStyle = color;
     context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
 
-    const width = data.width ? this.toPx(data.width) : undefined;
     const leftOffset = calculateLeftOffset({ left, textAlign, width });
-    const lines = data.width ? this.getAllLines(data) : [data.content];
+    const lines = width ? this.getAllLines(data) : [data.content];
 
     lines.forEach((text, index) => {
       const topOffset = top + (lineHeight - fontSize) / 2 + lineHeight * index;
@@ -203,8 +176,7 @@ export class MiniPoster {
 
   getAllLines(data: TextConfig) {
     const { context } = this;
-    const width = this.toPx(data.width!);
-    const { content, lineClamp = Infinity } = data;
+    const { width, content, lineClamp = Infinity } = data;
     const lines = [];
     let index = 0;
 
@@ -215,7 +187,7 @@ export class MiniPoster {
         binarySearch(
           content,
           (end) =>
-            context.measureText(content.slice(index, end + 1)).width > width,
+            context.measureText(content.slice(index, end + 1)).width > width!,
         ) + 1;
 
       if (index === prevIndex) {
