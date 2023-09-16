@@ -48,13 +48,13 @@ export class MiniPoster {
     context.save();
 
     if (borderRadius) {
-      this.drawRoundedRect(0, 0, canvas.width, canvas.height, borderRadius);
+      this.drawRoundedRect(0, 0, width, height, borderRadius);
       context.clip();
     }
 
     if (backgroundColor) {
       context.fillStyle = backgroundColor;
-      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.fillRect(0, 0, width, height);
     }
 
     if (overflow !== 'hidden') {
