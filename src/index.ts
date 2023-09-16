@@ -90,17 +90,14 @@ export class MiniPoster {
 
   async renderImage(data: ImageConfig) {
     const { context } = this;
-    const { src, backgroundColor, borderRadius, objectFit = 'fill' } = data;
+    const { src, backgroundColor, borderRadius = 0, objectFit = 'fill' } = data;
     const [img, loadPromise] = this.images.get(src);
     let { left, top, width, height } = data;
     await loadPromise;
 
     context.save();
-
-    if (borderRadius) {
-      this.drawRoundedRect(left, top, width, height, borderRadius);
-      context.clip();
-    }
+    this.drawRoundedRect(left, top, width, height, borderRadius);
+    context.clip();
 
     if (backgroundColor) {
       context.fillStyle = backgroundColor;
