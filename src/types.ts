@@ -34,7 +34,7 @@ export type Config = {
   backgroundColor?: string;
   borderRadius?: Radius;
   overflow?: 'visible' | 'hidden';
-  children?: (TextConfig | ImageConfig)[];
+  children?: (ContainerConfig | ImageConfig | TextConfig)[];
 };
 
 type PositionConfig = {
@@ -50,6 +50,22 @@ export type TextDecoration = 'none' | 'line-through';
 
 export type ObjectFit = 'fill' | 'contain' | 'cover';
 
+export type ContainerConfig = PositionConfig & {
+  type: 'container';
+  backgroundColor?: string;
+  borderRadius?: Radius;
+  overflow?: 'visible' | 'hidden';
+  children?: (ContainerConfig | ImageConfig | TextConfig)[];
+};
+
+export type ImageConfig = PositionConfig & {
+  type: 'image';
+  src: string;
+  backgroundColor?: string;
+  borderRadius?: Radius;
+  objectFit?: ObjectFit;
+};
+
 export type TextConfig = Omit<PositionConfig, 'width' | 'height'> & {
   width?: number;
 } & {
@@ -61,15 +77,7 @@ export type TextConfig = Omit<PositionConfig, 'width' | 'height'> & {
   lineHeight?: number;
   fontFamily?: string;
   fontSrc?: string;
-  fontWeight?: number | string;
+  fontWeight?: string;
   textAlign?: TextAlign;
   textDecoration?: TextDecoration;
-};
-
-export type ImageConfig = PositionConfig & {
-  type: 'image';
-  src: string;
-  backgroundColor?: string;
-  borderRadius?: Radius;
-  objectFit?: ObjectFit;
 };

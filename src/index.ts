@@ -3,6 +3,7 @@ import { binarySearch, calculateLeftOffset } from './utils';
 import type {
   Canvas,
   Config,
+  ContainerConfig,
   ExportOptions,
   ImageConfig,
   Options,
@@ -28,15 +29,7 @@ export class MiniPoster {
 
   async render(config: Config) {
     const { canvas, context, options } = this;
-    const {
-      width,
-      height,
-      pixelRatio = 1,
-      backgroundColor,
-      borderRadius,
-      overflow,
-    } = { ...options, ...config };
-    const { children } = config;
+    const { width, height, pixelRatio = 1 } = { ...options, ...config };
 
     if (!width || !height) {
       throw Error('缺少 width 或 height 参数');
@@ -45,12 +38,31 @@ export class MiniPoster {
     canvas.width = width * pixelRatio;
     canvas.height = height * pixelRatio;
     context.scale(pixelRatio, pixelRatio);
-    context.save();
 
-    if (borderRadius) {
-      this.drawRoundedRect(0, 0, width, height, borderRadius);
-      context.clip();
-    }
+    this.renderContainer({
+      type: 'container',
+      ...config,
+      top: 0,
+      left: 0,
+      width,
+      height,
+    });
+  }
+
+  async renderContainer(data: ContainerConfig) {
+    const { context } = this;
+    const {
+      width,
+      height,
+      backgroundColor,
+      borderRadius = 0,
+      overflow,
+      children,
+    } = data;
+
+    context.save();
+    this.drawRoundedRect(0, 0, width, height, borderRadius);
+    context.clip();
 
     if (backgroundColor) {
       context.fillStyle = backgroundColor;
@@ -65,6 +77,7 @@ export class MiniPoster {
       this.loadAssets(children);
 
       for (const item of children) {
+        if (item.type === 'container') await this.renderContainer(item);
         if (item.type === 'image') await this.renderImage(item);
         if (item.type === 'text') await this.renderText(item);
       }
