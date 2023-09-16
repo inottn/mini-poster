@@ -130,7 +130,7 @@ export class MiniPoster {
       fontSize = 14,
       lineHeight = fontSize * 1.43,
       color = '#333',
-      fontFamily,
+      fontFamily = 'sans-serif',
       fontWeight = 400,
       fontSrc,
       textAlign = 'left',
@@ -143,7 +143,7 @@ export class MiniPoster {
 
     context.save();
     if (width) context.textAlign = textAlign;
-    context.textBaseline = 'top';
+    context.textBaseline = 'alphabetic';
     context.fillStyle = color;
     context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
 
@@ -152,7 +152,7 @@ export class MiniPoster {
 
     lines.forEach((text, index) => {
       const topOffset = top + (lineHeight - fontSize) / 2 + lineHeight * index;
-      context.fillText(text, leftOffset, topOffset);
+      context.fillText(text, leftOffset, topOffset + fontSize);
 
       if (textDecoration === 'line-through') {
         const { width: textWidth } = context.measureText(text);
@@ -165,7 +165,7 @@ export class MiniPoster {
 
         context.fillRect(
           textLeft,
-          topOffset + fontSize * 0.46,
+          topOffset + fontSize * 0.64,
           textWidth,
           fontSize / 14,
         );
