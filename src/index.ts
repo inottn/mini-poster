@@ -1,5 +1,5 @@
 import { isNonEmptyArray, withResolvers } from '@inottn/fp-utils';
-import { binarySearch, calculateLeftOffset } from './utils';
+import { binarySearch, calculateLeftOffset, mergePosition } from './utils';
 import type {
   Canvas,
   Config,
@@ -42,8 +42,8 @@ export class MiniPoster {
     this.renderContainer({
       type: 'container',
       ...config,
-      top: 0,
       left: 0,
+      top: 0,
       width,
       height,
     });
@@ -52,6 +52,8 @@ export class MiniPoster {
   async renderContainer(data: ContainerConfig) {
     const { context } = this;
     const {
+      left,
+      top,
       width,
       height,
       backgroundColor,
@@ -61,12 +63,12 @@ export class MiniPoster {
     } = data;
 
     context.save();
-    this.drawRoundedRect(0, 0, width, height, borderRadius);
+    this.drawRoundedRect(left, top, width, height, borderRadius);
     context.clip();
 
     if (backgroundColor) {
       context.fillStyle = backgroundColor;
-      context.fillRect(0, 0, width, height);
+      context.fillRect(left, top, width, height);
     }
 
     if (overflow !== 'hidden') {
@@ -77,9 +79,10 @@ export class MiniPoster {
       this.loadAssets(children);
 
       for (const item of children) {
-        if (item.type === 'container') await this.renderContainer(item);
-        if (item.type === 'image') await this.renderImage(item);
-        if (item.type === 'text') await this.renderText(item);
+        const _itme = mergePosition(item, { left, top });
+        if (_itme.type === 'container') await this.renderContainer(_itme);
+        if (_itme.type === 'image') await this.renderImage(_itme);
+        if (_itme.type === 'text') await this.renderText(_itme);
       }
     }
 

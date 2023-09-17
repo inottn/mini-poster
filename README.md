@@ -7,6 +7,11 @@
   <img src="https://img.shields.io/npm/l/%40inottn%2Fminiposter" />
 </p>
 
+## 特性
+
+- 使用 TypeScript 编写，提供完整的类型定义
+- 使用 新版 canvas 2d 接口，性能更佳
+
 ## 安装
 
 使用 `pnpm` 安装:

@@ -1,5 +1,5 @@
 import { isUndefined } from '@inottn/fp-utils';
-import { TextAlign } from './types';
+import { PositionConfig, TextAlign } from './types';
 
 type BinarySearchValidate = (index: number) => boolean;
 
@@ -46,4 +46,17 @@ export const calculateLeftOffset = function ({
     default:
       return left;
   }
+};
+
+export const mergePosition = function <T extends PositionConfig>(
+  value1: T,
+  value2?: PositionConfig,
+): T {
+  if (isUndefined(value2)) return value1;
+
+  return {
+    ...value1,
+    left: value1.left + value2.left,
+    top: value1.top + value2.top,
+  };
 };
