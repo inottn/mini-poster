@@ -1,5 +1,10 @@
-import { isUndefined } from '@inottn/fp-utils';
-import { PositionConfig, TextAlign } from './types';
+import { isFunction, isUndefined } from '@inottn/fp-utils';
+import {
+  ElementConfig,
+  NormalizedConfig,
+  PositionConfig,
+  TextAlign,
+} from './types';
 
 type BinarySearchValidate = (index: number) => boolean;
 
@@ -50,13 +55,24 @@ export const calculateLeftOffset = function ({
 
 export const mergePosition = function <T extends PositionConfig>(
   value1: T,
-  value2?: PositionConfig,
+  value2?: NormalizedConfig<PositionConfig>,
 ): T {
   if (isUndefined(value2)) return value1;
 
+  const left = isFunction(value1.left) ? value1.left() : value1.left;
+  const top = isFunction(value1.top) ? value1.top() : value1.top;
+
   return {
     ...value1,
-    left: value1.left + value2.left,
-    top: value1.top + value2.top,
+    left: value2.left + left,
+    top: value2.top + top,
   };
+};
+
+export const normalizeConfig = function <T extends ElementConfig>(config: T) {
+  const normalizedConfig = { ...config };
+  if (isFunction(config.left)) normalizedConfig.left = config.left();
+  if (isFunction(config.top)) normalizedConfig.top = config.top();
+
+  return normalizedConfig as NormalizedConfig<T>;
 };

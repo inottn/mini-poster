@@ -30,16 +30,21 @@ export type Radius =
   | [number, number, number]
   | [number, number, number, number];
 
-export type Element = ContainerConfig | ImageConfig | TextConfig;
+export type ElementConfig = ContainerConfig | ImageConfig | TextConfig;
 
 export type Config = {
   backgroundColor?: string;
   borderRadius?: Radius;
   overflow?: 'visible' | 'hidden';
-  children?: Element[];
+  children?: ElementConfig[];
 };
 
 export type PositionConfig = {
+  left: number | (() => number);
+  top: number | (() => number);
+};
+
+type NormalizedPositionConfig = {
   left: number;
   top: number;
 };
@@ -55,13 +60,16 @@ export type TextDecoration = 'none' | 'line-through';
 
 export type ObjectFit = 'fill' | 'contain' | 'cover';
 
+export type NormalizedConfig<Config> = Omit<Config, 'left' | 'top'> &
+  NormalizedPositionConfig;
+
 export type ContainerConfig = PositionConfig &
   SizeConfig & {
     type: 'container';
     backgroundColor?: string;
     borderRadius?: Radius;
     overflow?: 'visible' | 'hidden';
-    children?: Element[];
+    children?: ElementConfig[];
   };
 
 export type ImageConfig = PositionConfig &

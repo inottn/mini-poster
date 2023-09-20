@@ -1,12 +1,18 @@
 import { isNonEmptyArray, withResolvers } from '@inottn/fp-utils';
-import { binarySearch, calculateLeftOffset, mergePosition } from './utils';
+import {
+  binarySearch,
+  calculateLeftOffset,
+  mergePosition,
+  normalizeConfig,
+} from './utils';
 import type {
   Canvas,
   Config,
   ContainerConfig,
-  Element,
+  ElementConfig,
   ExportOptions,
   ImageConfig,
+  NormalizedConfig,
   Options,
   Radius,
   TextConfig,
@@ -51,19 +57,20 @@ export class MiniPoster {
     });
   }
 
-  async draw(data: Element | Element[]) {
+  async draw(data: ElementConfig | ElementConfig[]) {
     if (Array.isArray(data)) {
       for (const item of data) {
         await this.draw(item);
       }
     } else {
-      if (data.type === 'container') await this.renderContainer(data);
-      if (data.type === 'image') await this.renderImage(data);
-      if (data.type === 'text') await this.renderText(data);
+      if (data.type === 'container')
+        await this.renderContainer(normalizeConfig(data));
+      if (data.type === 'image') await this.renderImage(normalizeConfig(data));
+      if (data.type === 'text') await this.renderText(normalizeConfig(data));
     }
   }
 
-  async renderContainer(data: ContainerConfig) {
+  async renderContainer(data: NormalizedConfig<ContainerConfig>) {
     const { context } = this;
     const {
       left,
@@ -103,7 +110,7 @@ export class MiniPoster {
     }
   }
 
-  async renderImage(data: ImageConfig) {
+  async renderImage(data: NormalizedConfig<ImageConfig>) {
     const { context } = this;
     const { src, backgroundColor, borderRadius = 0, objectFit = 'fill' } = data;
     const [img, loadPromise] = this.images.get(src);
@@ -146,7 +153,7 @@ export class MiniPoster {
     context.restore();
   }
 
-  async renderText(data: TextConfig) {
+  async renderText(data: NormalizedConfig<TextConfig>) {
     const { context } = this;
     const {
       id,
@@ -283,7 +290,7 @@ export class MiniPoster {
     context.restore();
   }
 
-  loadAssets(data: Element[]) {
+  loadAssets(data: ElementConfig[]) {
     data.forEach((item) => {
       const { type } = item;
 
