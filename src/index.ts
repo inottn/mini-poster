@@ -198,7 +198,6 @@ export class MiniPoster {
         );
       }
     });
-    context.restore();
 
     if (id) {
       this.sizes.set(id, {
@@ -206,6 +205,8 @@ export class MiniPoster {
         height: lineHeight * lines.length,
       });
     }
+
+    context.restore();
   }
 
   getAllLines(data: TextConfig) {
