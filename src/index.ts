@@ -4,6 +4,7 @@ import type {
   Canvas,
   Config,
   ContainerConfig,
+  Element,
   ExportOptions,
   ImageConfig,
   Options,
@@ -20,6 +21,7 @@ export class MiniPoster {
 
   images = new Map();
   fonts = new Map();
+  sizes = new Map<string, { width: number; height: number }>();
 
   constructor(canvas: Canvas, options: Options) {
     this.canvas = canvas;
@@ -47,6 +49,18 @@ export class MiniPoster {
       width,
       height,
     });
+  }
+
+  async draw(data: Element | Element[]) {
+    if (Array.isArray(data)) {
+      for (const item of data) {
+        await this.draw(item);
+      }
+    } else {
+      if (data.type === 'container') await this.renderContainer(data);
+      if (data.type === 'image') await this.renderImage(data);
+      if (data.type === 'text') await this.renderText(data);
+    }
   }
 
   async renderContainer(data: ContainerConfig) {
@@ -79,10 +93,8 @@ export class MiniPoster {
       this.loadAssets(children);
 
       for (const item of children) {
-        const _itme = mergePosition(item, { left, top });
-        if (_itme.type === 'container') await this.renderContainer(_itme);
-        if (_itme.type === 'image') await this.renderImage(_itme);
-        if (_itme.type === 'text') await this.renderText(_itme);
+        const _item = mergePosition(item, { left, top });
+        await this.draw(_item);
       }
     }
 
@@ -137,6 +149,8 @@ export class MiniPoster {
   async renderText(data: TextConfig) {
     const { context } = this;
     const {
+      id,
+      content,
       left,
       top,
       width,
@@ -161,7 +175,7 @@ export class MiniPoster {
     context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
 
     const leftOffset = calculateLeftOffset({ left, textAlign, width });
-    const lines = width ? this.getAllLines(data) : [data.content];
+    const lines = width ? this.getAllLines(data) : [content];
 
     lines.forEach((text, index) => {
       const topOffset = top + (lineHeight - fontSize) / 2 + lineHeight * index;
@@ -185,6 +199,13 @@ export class MiniPoster {
       }
     });
     context.restore();
+
+    if (id) {
+      this.sizes.set(id, {
+        width: width ? width : context.measureText(content).width,
+        height: lineHeight * lines.length,
+      });
+    }
   }
 
   getAllLines(data: TextConfig) {
@@ -215,6 +236,10 @@ export class MiniPoster {
     }
 
     return lines;
+  }
+
+  getSize(id: string) {
+    return this.sizes.get(id);
   }
 
   drawRoundedRect(
@@ -257,7 +282,7 @@ export class MiniPoster {
     context.restore();
   }
 
-  loadAssets(data: NonNullable<Config['children']>) {
+  loadAssets(data: Element[]) {
     data.forEach((item) => {
       const { type } = item;
 

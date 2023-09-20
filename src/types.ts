@@ -30,11 +30,13 @@ export type Radius =
   | [number, number, number]
   | [number, number, number, number];
 
+export type Element = ContainerConfig | ImageConfig | TextConfig;
+
 export type Config = {
   backgroundColor?: string;
   borderRadius?: Radius;
   overflow?: 'visible' | 'hidden';
-  children?: (ContainerConfig | ImageConfig | TextConfig)[];
+  children?: Element[];
 };
 
 export type PositionConfig = {
@@ -59,7 +61,7 @@ export type ContainerConfig = PositionConfig &
     backgroundColor?: string;
     borderRadius?: Radius;
     overflow?: 'visible' | 'hidden';
-    children?: (ContainerConfig | ImageConfig | TextConfig)[];
+    children?: Element[];
   };
 
 export type ImageConfig = PositionConfig &
@@ -75,6 +77,7 @@ export type TextConfig = PositionConfig & {
   width?: number;
 } & {
   type: 'text';
+  id?: string;
   content: string;
   color?: string;
   fontSize?: number;
