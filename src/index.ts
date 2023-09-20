@@ -41,7 +41,7 @@ export class MiniPoster {
     canvas.height = height * pixelRatio;
     context.scale(pixelRatio, pixelRatio);
 
-    this.renderContainer({
+    await this.renderContainer({
       type: 'container',
       ...config,
       left: 0,
