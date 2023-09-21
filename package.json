@@ -1,6 +1,6 @@
 {
   "name": "@inottn/miniposter",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "packageManager": "pnpm@8.7.0",
   "description": "使用 canvas 轻松绘制小程序海报",
   "author": "inottn<https://github.com/inottn>",

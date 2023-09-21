@@ -39,12 +39,34 @@ const miniposter = new MiniPoster(canvas, {
   pixelRatio: 2,
 });
 
-const renderConfig = { ... }; // 渲染配置，参考下方文档
+const renderConfig = {
+  backgroundColor: '#fff',
+  borderRadius: 8,
+  overflow: 'hidden',
+  children: [
+    {
+      type: 'image',
+      top: 12,
+      left: 12,
+      width: 32,
+      height: 32,
+      src: 'xxxxx',
+      borderRadius: 16,
+      objectFit: 'cover',
+    },
+    {
+      type: 'text',
+      top: 18,
+      left: 53,
+      content: 'hello',
+    },
+  ],
+}; // 渲染配置，参考下方文档
 
 miniposter.render(renderConfig).then(() => {
   const exportConfig = { ... }; // 导出配置，参考下方文档
 
-  miniposter.export(exportConfig).then((({ tempFilePath })) => {
+  miniposter.export(exportConfig).then(({ tempFilePath }) => {
     // tempFilePath 对应图片文件路径
   });
 });
@@ -91,16 +113,16 @@ const container = {
 };
 ```
 
-| 字段名          | 类型                  | 默认值    | 说明                                    |
-| --------------- | --------------------- | --------- | --------------------------------------- |
-| left            | number                | -         | （必填）相对父元素x轴的偏移             |
-| top             | number                | -         | （必填）相对父元素y轴的偏移             |
-| width           | number                | -         | （必填）容器宽度                        |
-| height          | number                | -         | （必填）容器高度                        |
-| backgroundColor | string                | -         | 背景颜色                                |
-| borderRadius    | number                | 0         | 边框圆角                                |
-| overflow        | 'visible' \| 'hidden' | 'visible' | 子元素溢出时的行为，可参考对应 CSS 属性 |
-| children        | object[]              | -         | 子元素                                  |
+| 字段名          | 类型                   | 默认值    | 说明                                    |
+| --------------- | ---------------------- | --------- | --------------------------------------- |
+| left            | number \| () => number | -         | （必填）相对父元素x轴的偏移             |
+| top             | number \| () => number | -         | （必填）相对父元素y轴的偏移             |
+| width           | number                 | -         | （必填）容器宽度                        |
+| height          | number                 | -         | （必填）容器高度                        |
+| backgroundColor | string                 | -         | 背景颜色                                |
+| borderRadius    | number                 | 0         | 边框圆角                                |
+| overflow        | 'visible' \| 'hidden'  | 'visible' | 子元素溢出时的行为，可参考对应 CSS 属性 |
+| children        | object[]               | -         | 子元素                                  |
 
 ### image
 
@@ -113,8 +135,8 @@ const image = {
 
 | 字段名          | 类型                           | 默认值 | 说明                                |
 | --------------- | ------------------------------ | ------ | ----------------------------------- |
-| left            | number                         | -      | （必填）相对父元素x轴的偏移         |
-| top             | number                         | -      | （必填）相对父元素y轴的偏移         |
+| left            | number \| () => number         | -      | （必填）相对父元素x轴的偏移         |
+| top             | number \| () => number         | -      | （必填）相对父元素y轴的偏移         |
 | width           | number                         | -      | （必填）图像宽度                    |
 | height          | number                         | -      | （必填）图像高度                    |
 | backgroundColor | string                         | -      | 背景颜色                            |
@@ -132,8 +154,9 @@ const text = {
 
 | 字段名         | 类型                          | 默认值             | 说明                                                 |
 | -------------- | ----------------------------- | ------------------ | ---------------------------------------------------- |
-| left           | number                        | -                  | （必填）相对父元素x轴的偏移                          |
-| top            | number                        | -                  | （必填）相对父元素y轴的偏移                          |
+| id             | string                        | -                  | 可以通过 getSize 方法获取对应的宽高信息              |
+| left           | number \| () => number        | -                  | （必填）相对父元素x轴的偏移                          |
+| top            | number \| () => number        | -                  | （必填）相对父元素y轴的偏移                          |
 | width          | number                        | -                  | 文本宽度                                             |
 | content        | string                        | -                  | 文本内容                                             |
 | fontSize       | number                        | 14                 | 字体大小                                             |
@@ -144,3 +167,7 @@ const text = {
 | lineHeight     | number                        | 字体大小的 1.43 倍 | 文本行高                                             |
 | textAlign      | 'left' \| 'center' \| 'right' | 'left'             | 文本的水平对齐方式，需设置文本宽度                   |
 | textDecoration | 'none' \| 'line-through'      | 'none'             | 文本上的装饰性线条的外观，可参考对应 CSS 属性        |
+
+## miniposter.getSize(id)
+
+获取指定元素的宽高信息
