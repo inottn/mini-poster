@@ -1,5 +1,5 @@
 import { isFunction, isUndefined } from '@inottn/fp-utils';
-import {
+import type {
   ElementConfig,
   NormalizedConfig,
   PositionConfig,
