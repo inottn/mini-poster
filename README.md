@@ -1,3 +1,7 @@
+<p align="center">
+  <img alt="logo" src="https://fastly.jsdelivr.net/npm/@inottn/assets/miniposter/logo.svg" width="420" style="margin-bottom: 10px;">
+</p>
+
 <p align="center">使用 canvas 轻松绘制小程序海报</p>
 
 <p align="center">
