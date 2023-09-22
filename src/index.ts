@@ -1,4 +1,5 @@
-import { isNonEmptyArray, withResolvers } from '@inottn/fp-utils';
+import { isNonEmptyArray } from '@inottn/fp-utils';
+import { loadFontFace, toTempFilePath } from './adapter';
 import {
   binarySearch,
   calculateLeftOffset,
@@ -6,6 +7,7 @@ import {
   normalizeConfig,
 } from './utils';
 import type {
+  AugmentedRequired,
   Canvas,
   Config,
   ContainerConfig,
@@ -17,8 +19,6 @@ import type {
   Radius,
   TextConfig,
 } from './types';
-
-declare const my: any;
 
 export class MiniPoster {
   canvas: Canvas;
@@ -298,7 +298,7 @@ export class MiniPoster {
         this.loadImage(item);
       }
 
-      if (type === 'text' && item.fontFamily) {
+      if (type === 'text' && item.fontFamily && item.fontSrc) {
         this.loadFont(item);
       }
     });
@@ -321,18 +321,17 @@ export class MiniPoster {
   }
 
   loadFont(data: TextConfig) {
-    const { fontFamily, fontSrc } = data;
+    const { fontFamily, fontSrc } = data as AugmentedRequired<
+      TextConfig,
+      'fontFamily' | 'fontSrc'
+    >;
 
     if (!this.fonts.has(fontSrc)) {
       this.fonts.set(
         fontSrc,
-        new Promise((resolve, reject) => {
-          my.loadFontFace({
-            family: fontFamily,
-            source: `url('${fontSrc}')`,
-            success: resolve,
-            fail: reject,
-          });
+        loadFontFace({
+          fontFamily,
+          fontSrc,
         }),
       );
     }
@@ -340,18 +339,15 @@ export class MiniPoster {
 
   export(options: ExportOptions) {
     const { canvas } = this;
-    const { promise, resolve, reject } = withResolvers();
 
-    canvas.toTempFilePath({
+    return toTempFilePath(canvas, {
       x: 0,
       y: 0,
       width: canvas.width,
       height: canvas.height,
+      destWidth: canvas.width,
+      destHeight: canvas.height,
       ...options,
-      success: resolve,
-      fail: reject,
     });
-
-    return promise;
   }
 }
