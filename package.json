@@ -1,8 +1,8 @@
 {
   "name": "@inottn/miniposter",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "packageManager": "pnpm@8.7.0",
-  "description": "使用 canvas 轻松绘制小程序海报",
+  "description": "使用 canvas 轻松绘制小程序海报，支持 微信 / 支付宝小程序",
   "author": "inottn<https://github.com/inottn>",
   "homepage": "https://github.com/inottn/miniposter",
   "main": "dist/index-cjs.js",
@@ -19,6 +19,7 @@
       "require": "./dist/index-cjs.js"
     }
   },
+  "sideEffects": false,
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "test": "vitest",
