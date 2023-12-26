@@ -26,8 +26,6 @@
     "test:coverage": "vitest --coverage",
     "lint": "eslint ./src --ext .js,.ts,.mjs,.cjs",
     "lint:tsc": "tsc --noEmit --skipLibCheck",
-    "docs:dev": "pnpm -C docs run dev",
-    "docs:build": "pnpm -C docs run build",
     "prepare": "husky install"
   },
   "publishConfig": {

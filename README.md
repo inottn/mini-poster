@@ -109,7 +109,7 @@ const miniposter = new MiniPoster(canvas, config);
 
 可绘制的元素类型如下：
 
-### container
+### type: container
 
 ```js
 const container = {
@@ -129,7 +129,7 @@ const container = {
 | overflow        | 'visible' \| 'hidden'  | 'visible' | 子元素溢出时的行为，可参考对应 CSS 属性 |
 | children        | object[]               | -         | 子元素                                  |
 
-### image
+### type: image
 
 ```js
 const image = {
@@ -148,7 +148,7 @@ const image = {
 | borderRadius    | number                         | 0      | 边框圆角                            |
 | objectFit       | 'fill' \| 'contain' \| 'cover' | 'fill' | 图片的展示模式，可参考对应 CSS 属性 |
 
-### text
+### type: text
 
 ```js
 const text = {
@@ -176,3 +176,18 @@ const text = {
 ## miniposter.getSize(id)
 
 获取指定元素的宽高信息
+
+## miniposter.export(config)
+
+将当前画布指定区域导出为图片
+
+| 字段名     | 类型           | 默认值   | 说明                                                                        |
+| ---------- | -------------- | -------- | --------------------------------------------------------------------------- |
+| x          | number         | 0        | 指定的画布区域的左上角横坐标                                                |
+| y          | number         | 0        | 指定的画布区域的左上角纵坐标                                                |
+| width      | number         | 画布宽度 | 指定的画布区域的宽度                                                        |
+| height     | number         | 画布高度 | 指定的画布区域的高度                                                        |
+| destWidth  | number         | 画布宽度 | 输出的图片的宽度                                                            |
+| destHeight | number         | 画布高度 | 输出的图片的高度                                                            |
+| fileType   | 'png' \| 'jpg' | 'png'    | 目标文件的类型                                                              |
+| quality    | number         | 1        | 图片的质量，目前仅对 jpg 有效。取值范围为 (0, 1]，不在范围内时当作 1 处理。 |
