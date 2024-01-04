@@ -58,15 +58,20 @@ export class MiniPoster {
   }
 
   async draw(data: ElementConfig | ElementConfig[]) {
-    if (Array.isArray(data)) {
-      for (const item of data) {
-        await this.draw(item);
+    try {
+      if (Array.isArray(data)) {
+        for (const item of data) {
+          await this.draw(item);
+        }
+      } else {
+        if (data.type === 'container')
+          await this.renderContainer(normalizeConfig(data));
+        if (data.type === 'image')
+          await this.renderImage(normalizeConfig(data));
+        if (data.type === 'text') await this.renderText(normalizeConfig(data));
       }
-    } else {
-      if (data.type === 'container')
-        await this.renderContainer(normalizeConfig(data));
-      if (data.type === 'image') await this.renderImage(normalizeConfig(data));
-      if (data.type === 'text') await this.renderText(normalizeConfig(data));
+    } catch (error) {
+      // failed to load resources
     }
   }
 
