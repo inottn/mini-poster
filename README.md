@@ -164,6 +164,7 @@ const text = {
 | top            | number \| () => number        | -                  | （必填）相对父元素y轴的偏移                          |
 | width          | number                        | -                  | 文本宽度                                             |
 | content        | string                        | -                  | 文本内容                                             |
+| color          | string                        | -                  | 字体颜色                                             |
 | fontSize       | number                        | 14                 | 字体大小                                             |
 | fontWeight     | string                        | 'normal'           | 字体的粗细程度，一些字体只提供 normal 和 bold 两种值 |
 | fontFamily     | string                        | 'sans-serif'       | 字体名称                                             |
