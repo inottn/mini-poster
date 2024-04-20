@@ -1,11 +1,6 @@
 import { isNonEmptyArray } from '@inottn/fp-utils';
 import { loadFontFace, toTempFilePath } from './adapter';
-import {
-  binarySearch,
-  calculateLeftOffset,
-  mergePosition,
-  normalizeConfig,
-} from './utils';
+import { calculateLeftOffset, mergePosition, normalizeConfig } from './utils';
 import type {
   AugmentedRequired,
   Canvas,
@@ -224,28 +219,45 @@ export class MiniPoster {
   getAllLines(data: TextConfig) {
     const { context } = this;
     const { width, content, lineClamp = Infinity } = data;
+
+    if (width == void 0) {
+      return [content];
+    }
+
+    if (width <= 0) {
+      return content.split('');
+    }
+
     const lines = [];
     let index = 0;
+    const { length } = content;
 
-    while (index < content.length && lines.length < lineClamp) {
-      const prevIndex = index;
-
-      index =
-        binarySearch(
-          content,
-          (end) =>
-            context.measureText(content.slice(index, end + 1)).width > width!,
-        ) + 1;
-
-      if (index === prevIndex) {
-        index = prevIndex + 1;
+    while (index < length && lines.length < lineClamp) {
+      let left = index;
+      let right = length;
+      let mid = right;
+      while (left < mid) {
+        const measureWidth = context.measureText(
+          content.slice(index, mid),
+        ).width;
+        if (measureWidth > width) {
+          right = mid;
+          mid = left + ((mid - left) >> 1);
+        } else if (measureWidth < width) {
+          left = mid;
+          mid = mid + ((right - mid) >> 1);
+        } else {
+          break;
+        }
       }
 
-      if (lineClamp === lines.length + 1) {
-        lines.push(content.slice(prevIndex, index - 1) + '...');
+      if (lineClamp === lines.length + 1 && mid < length) {
+        lines.push(content.slice(index, mid - 1) + '...');
       } else {
-        lines.push(content.slice(prevIndex, index));
+        lines.push(content.slice(index, mid));
       }
+
+      index = mid;
     }
 
     return lines;
