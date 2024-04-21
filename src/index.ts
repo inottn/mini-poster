@@ -241,7 +241,7 @@ export class MiniPoster {
         index = prevIndex + 1;
       }
 
-      if (lineClamp === lines.length + 1) {
+      if (lineClamp === lines.length + 1 && index < content.length) {
         lines.push(content.slice(prevIndex, index - 1) + '...');
       } else {
         lines.push(content.slice(prevIndex, index));
