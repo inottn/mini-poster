@@ -9,12 +9,10 @@ import type {
 type BinarySearchValidate = (index: number) => boolean;
 
 export const binarySearch = function (
-  value: string,
+  left: number,
+  right: number,
   validate: BinarySearchValidate,
 ) {
-  let left = 0;
-  let right = value.length;
-
   while (left < right) {
     const mid = left + ((right - left) >> 1);
 

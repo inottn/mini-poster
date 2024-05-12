@@ -224,15 +224,17 @@ export class MiniPoster {
   getAllLines(data: TextConfig) {
     const { context } = this;
     const { width, content, lineClamp = Infinity } = data;
+    const contentLength = content.length;
     const lines = [];
     let index = 0;
 
-    while (index < content.length && lines.length < lineClamp) {
+    while (index < contentLength && lines.length < lineClamp) {
       const prevIndex = index;
 
       index =
         binarySearch(
-          content,
+          index,
+          contentLength,
           (end) =>
             context.measureText(content.slice(index, end + 1)).width > width!,
         ) + 1;
@@ -241,7 +243,7 @@ export class MiniPoster {
         index = prevIndex + 1;
       }
 
-      if (lineClamp === lines.length + 1 && index < content.length) {
+      if (lineClamp === lines.length + 1 && index < contentLength) {
         lines.push(content.slice(prevIndex, index - 1) + '...');
       } else {
         lines.push(content.slice(prevIndex, index));
